@@ -65,15 +65,11 @@ CHIP ALU {
     // Output
     // no
     Not16(in=funcOut, out=NegatedFuncOut);
-    Mux16(a=funcOut, b=NegatedFuncOut, sel=no,
-          out[15]=outMSB, out[0..7]=low8Out, out[8..15]=high8Out, out=outProcessed, out=out);
+    Mux16(a=funcOut, b=NegatedFuncOut, sel=no, out[0..7]=lowerOut, out[8..15]=higherOut, out[15]=ng, out=out);
 
     // zr
-    Or8Way(in=low8Out, out=l8);
-    Or8Way(in=high8Out, out=h8);
-    Or(a=l8, b=h8, out=temp);
-    Not(in=temp, out=zr);
-
-    // ng
-    And(a=outMSB, b=true, out=ng);
+    Or8Way(in=lowerOut, out=or1);
+    Or8Way(in=higherOut, out=or2);
+    Or(a=or1, b=or2, out=or3);
+    Not(in=or3, out=zr);
 }
