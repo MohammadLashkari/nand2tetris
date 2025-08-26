@@ -8,10 +8,47 @@
  * address is set to in; Otherwise, the value does not change.
  * The value of the selected register is emitted by out.
  */
+
+// Let M stand for the state of the selected register
+// if load then {
+//    M = in
+//  
+//    out = M (from the next cycle onward)
+//  }
+//
+// else out = M
+
+
+// RAM Abstraction: A sequence of n addressable registers, with addresses 0 to n-1
+
+// Number of address bits = log2(Number of addressable units)
+//
+// Example: 4 GUnits of RAM
+//
+// 4 giga-units of addressable memory = 4 * 2^30 = 2^32 units
+//
+// log2(2^32) = 32 -> So you need 32 address bits to uniquely identify each unit
+
+
+// Concept of addressable unit:
+// - In Nand2Tetris: each register is one addressable unit
+// - In real RAM: each byte is one addressable unit
+
+
 CHIP RAM8 {
     IN in[16], load, address[3];
     OUT out[16];
 
     PARTS:
-    //// Replace this comment with your code.
+
+    DMux8Way(in=load, sel=address, a=load1, b=load2, c=load3, d=load4, e=load5, f=load6, g=load7, h=load8);
+    Register(in=in, load=load1, out=out1);
+    Register(in=in, load=load2, out=out2);
+    Register(in=in, load=load3, out=out3);
+    Register(in=in, load=load4, out=out4);
+    Register(in=in, load=load5, out=out5);
+    Register(in=in, load=load6, out=out6);
+    Register(in=in, load=load7, out=out7);
+    Register(in=in, load=load8, out=out8);
+    Mux8Way16(a=out1, b=out2, c=out3, d=out4, e=out5, f=out6, g=out7, h=out8, sel=address, out=out);
 }
