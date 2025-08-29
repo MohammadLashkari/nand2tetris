@@ -16,7 +16,7 @@
 //    out = M (from the next cycle onward)
 //  }
 //
-// else out = M
+// else out = M (emit current state)
 
 
 // RAM Abstraction: A sequence of n addressable registers, with addresses 0 to n-1
@@ -41,6 +41,7 @@ CHIP RAM8 {
 
     PARTS:
 
+    // Feed the in value to all the registers simultaneously(FanOut)
     DMux8Way(in=load, sel=address, a=load1, b=load2, c=load3, d=load4, e=load5, f=load6, g=load7, h=load8);
     Register(in=in, load=load1, out=out1);
     Register(in=in, load=load2, out=out2);
@@ -50,5 +51,6 @@ CHIP RAM8 {
     Register(in=in, load=load6, out=out6);
     Register(in=in, load=load7, out=out7);
     Register(in=in, load=load8, out=out8);
+    // FanIn
     Mux8Way16(a=out1, b=out2, c=out3, d=out4, e=out5, f=out6, g=out7, h=out8, sel=address, out=out);
 }

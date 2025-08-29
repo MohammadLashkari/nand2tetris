@@ -14,6 +14,9 @@ CHIP RAM64 {
 
     PARTS:
 
+    // Address[3..5] to select a RAM
+    // Address[0..2] to select a Register within the RAM
+
     DMux8Way(in=load, sel=address[3..5], a=load1, b=load2, c=load3, d=load4, e=load5, f=load6, g=load7, h=load8);
     RAM8(in=in, load=load1, address=address[0..2], out=out1);
     RAM8(in=in, load=load2, address=address[0..2], out=out2);
