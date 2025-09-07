@@ -13,10 +13,10 @@
     M=0
 
 (LOOP)
+    // if i > n goto STOP
     @i
     D=M
     @n
-    // if i > n goto STOP
     D=D-M
     @STOP
     D;JGT
