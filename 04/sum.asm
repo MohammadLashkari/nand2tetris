@@ -1,5 +1,5 @@
 // Sum 1 to N
-// Put a number (n) in RAM[0] -> RAM[1] = 1+2+...+n
+// RAM[1] = 1+2+...+RAM[0]
 
     @R0
     D=M

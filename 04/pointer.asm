@@ -2,7 +2,7 @@
 //     arr[i] = -1
 // }
 
-// Suppose that arr=100, n=10
+// arr=100, n=10
 
     @100
     D=A

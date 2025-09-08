@@ -1,4 +1,4 @@
-// Flip the values of RAM[0] and RAM[1]
+// Swap RAM[0] and RAM[1]
 
     // temp = R0
     @R0
