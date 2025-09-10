@@ -4,8 +4,15 @@
 
 
 (LOOP)
+    // reset i
+    @KBD
+    D=A
+    @i
+    M=D-1
+
     @KBD
     D=M
+
     @BLACK
     D;JGT
     @WHITE
@@ -16,42 +23,36 @@
     0;JMP
 
 (BLACK)
-    @c
+    @color
     M=-1
-    @COLOR
+    @FILL
     0;JMP
 
 
 (WHITE)
-    @c
+    @color
     M=0
-    @COLOR
+    @FILL
     0;JMP
 
 
-(COLOR)
-    @KBD
-    D=A
-    @i
-    M=D-1
-
-(LOOP2)
-    // if screen colored goto LOOP
+(FILL)
+    // if i < SCREEN goto LOOP
     @i
     D=M
     @SCREEN
     D=D-A
     @LOOP
-    D;JEQ
+    D;JLT
 
-    @c
+    @color
     D=M
     @i
     A=M
     M=D
+
     @i
     M=M-1
-    @LOOP2
+    @FILL
     0;JMP
-
 
