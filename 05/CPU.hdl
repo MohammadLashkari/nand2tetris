@@ -32,5 +32,113 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-	//// Replace this comment with your code.
+
+    // Decode the insctruction
+    // A-instruction: 0bbbbbbbbbbbbbbb
+    // C-instruction  111accccccdddjjj
+    And16(
+        a=instruction, b=instruction,
+        out[15]=opcode,
+    );
+
+    Mux16(
+        a=false, b=instruction, sel=opcode, 
+        out[12]=a,
+        out[11]=zx,
+        out[10]=nx,
+        out[9]=zy,
+        out[8]=ny,
+        out[7]=f,
+        out[6]=no,
+        out[3]=writeM,
+        out[4]=dD,
+        out[5]=dA,
+        out[0..2]=jmp
+    );
+
+
+    // A-instruction -> the A-register loads the current instruction 
+    // C-instruction -> the A-register loads the ALU ouput ( based on dest bits )
+    Mux16(a=instruction, b=alu, sel=opcode, out=insructionMuxAlu);
+    Mux(a=true, b=dA, sel=opcode, out=loadA);
+
+
+    ARegister(in=insructionMuxAlu, load=loadA, out=aReg, out[0..14]=addressM);
+    DRegister(in=alu, load=dD, out=dReg);
+
+    // X = from D   register
+    // Y = from A/M register
+    Mux16(a=aReg, b=inM, sel=a, out=aRegMuxMReg);
+
+
+    // zx nx zy ny f no  | out
+    //  1  0  1  0  1  0 |  0
+    //  1  1  1  1  1  1 |  1
+    //  1  1  1  0  1  0 | -1
+    //  0  0  1  1  0  0 |  x
+    //  1  1  0  0  0  0 |  y
+    //  0  0  1  1  0  1 | !x
+    //  1  1  0  0  0  1 | !y
+    //  0  0  1  1  1  1 | -x
+    //  1  1  0  0  1  1 | -y
+    //  0  1  1  1  1  1 | x+1
+    //  1  1  0  1  1  1 | y+1
+    //  0  0  1  1  1  0 | x-1
+    //  1  1  0  0  1  0 | y-1
+    //  0  0  0  0  1  0 | x+y
+    //  0  1  0  0  1  1 | x-y
+    //  0  0  0  1  1  1 | y-x
+    //  0  0  0  0  0  0 | x&y
+    //  0  1  0  1  0  1 | x|y
+
+
+    ALU(
+        x=dReg, y=aRegMuxMReg,
+        zx=zx, nx=nx, zy=zy, ny=ny, f=f, no=no,
+        out=alu, out=outM, zr=zr , ng=ng
+    );
+
+
+   // if (reset == 1)    PC=0
+   // if (jmp   == 000)  PC++
+   // if (jmp   == 111)  PC=A (unconditional jump)
+   // if (jmp   == bbb)
+   //    if (condition == true) PC=A else PC++
+
+   // if (reset == 1) PC=0
+   // else
+   //    load=f(jmp, zr, ng)
+   //    if (load == 1) PC=A else PC++
+
+   // jmp == 000(nil)  -> load=0
+   // jmp == 001(JGT)  -> zr=0 And ng=0 -> load=Not(zr Or ng)
+   // jmp == 010(JEQ)  -> zr=1 -> load=zr
+   // jmp == 011(JGE)  -> ng=0 -> load=Not(ng)
+   // jmp == 100(JLT)  -> ng=1 -> load=ng
+   // jmp == 101(JNE)  -> zr=0 -> load=Not(zr)
+   // jmp == 110(JLE)  -> zr=1 Or ng=1 -> load=zr Or ng
+   // jmp == 111(JMP)  -> load=1
+
+
+   Or(a=zr, b=ng, out=zrOrNg);
+   Not(in=zr, out=notZr);
+   Not(in=ng, out=notNg);
+   Not(in=zrOrNg, out=notZrOrNg);
+
+   Mux8Way16(
+       a[0]=false, 
+       b[0]=notZrOrNg, 
+       c[0]=zr, 
+       d[0]=notNg, 
+       e[0]=ng, 
+       f[0]=notZr, 
+       g[0]=zrOrNg, 
+       h[0]=true,
+       sel=jmp, 
+       out[0]=load
+   );
+
+
+   PC(in=aReg, load=load, inc=true, reset=reset, out[0..14]=pc);
+
 }
