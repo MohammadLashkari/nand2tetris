@@ -13,10 +13,28 @@
  * the screen may show some output, the user may be expected to enter
  * some input using the keyboard, or the program may do some procerssing. 
  */
+
+
+// We ascribe beauty to that which is simple; 
+// which has no superfluous parts; which exactly answers its end; which stands related to all things; which is the mean of many extremes.
+// Ralph Waldo Emerson 
+
+
 CHIP Computer {
 
     IN reset;
 
     PARTS:
-    //// Replace this comment with your code.
+
+    ROM32K(address=pc, out=instruction);
+    CPU(
+        inM=inM,
+        instruction=instruction,
+        reset=reset,
+        outM=outM,
+        writeM=writeM, 
+        addressM=addressM, 
+        pc=pc
+    );
+    Memory(in=outM, load=writeM, address=addressM, out=inM);
 }
