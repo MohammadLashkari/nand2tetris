@@ -37,11 +37,11 @@ CHIP Memory {
 
     RAM16K(in=in, load=ramLoad, address=address[0..13], out=ram);
     Screen(in=in, load=screenLoad, address=address[0..12], out=screen);
-
-    Mux16(a=ram, b=screen, sel=address[14], out=ramMuxScreen);
     Keyboard(out=keyboard);
 
-    And(a=address[14], b=address[13], out=isKeyboard);
-    Mux16(a=ramMuxScreen, b=keyboard, sel=isKeyboard, out=out);
-
+    Mux4Way16(
+        a=ram, b=ram, c=screen, d=keyboard, 
+        sel[0]=address[13], sel[1]=address[14],
+        out=out
+    );
 }
