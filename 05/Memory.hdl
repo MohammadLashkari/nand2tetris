@@ -20,10 +20,28 @@
  * memory map. The behavior in these addresses is described in the Screen
  * and Keyboard chip specifications given in the lectures and the book.
  */
+
+// (00000)R 000000000000000
+// (16383)R 011111111111111
+// (16384)S 100000000000000 -> address[14] == isScreen
+// (24575)S 101111111111111
+// (24576)K 110000000000000 -> addresses[14] & addresses[13] == isKeyboard
+
 CHIP Memory {
     IN in[16], load, address[15];
     OUT out[16];
 
     PARTS:
-    Screen(in= , load= , address= , out= );
+
+    DMux(in=load, sel=address[14], a=ramLoad, b=screenLoad);
+
+    RAM16K(in=in, load=ramLoad, address=address[0..13], out=ram);
+    Screen(in=in, load=screenLoad, address=address[0..12], out=screen);
+
+    Mux16(a=ram, b=screen, sel=address[14], out=ramMuxScreen);
+    Keyboard(out=keyboard);
+
+    And(a=address[14], b=address[13], out=isKeyboard);
+    Mux16(a=ramMuxScreen, b=keyboard, sel=isKeyboard, out=out);
+
 }
